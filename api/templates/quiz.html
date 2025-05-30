@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Discipulado - Pergunta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-container">
+            <div class="text-center mb-4">
+                <h1 class="display-4">Quiz Discipulado</h1>
+                <h2 class="h4">Sobrenatural Church</h2>
+            </div>
+            
+            <div class="quiz-progress mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">Aula {{ aula }}</span>
+                    <span>Pergunta {{ question_number }} de {{ total_questions }}</span>
+                </div>
+                <div class="progress mt-2">
+                    <div class="progress-bar" role="progressbar" style="width: {{ (question_number / total_questions) * 100 }}%"></div>
+                </div>
+            </div>
+            
+            <div class="question-content">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ question.question }}</h3>
+                        
+                        <form method="POST" action="{{ url_for('submit_answer') }}" class="mt-4">
+                            {% for option in question.options %}
+                            {% set index = loop.index0 %}
+                            <div class="form-check mb-3 p-3 border rounded option-item">
+                                <input class="form-check-input" type="radio" name="option" id="option{{ index }}" value="{{ index }}" required>
+                                <label class="form-check-label w-100" for="option{{ index }}">
+                                    {{ option }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Responder</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

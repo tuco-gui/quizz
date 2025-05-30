@@ -1,0 +1,11 @@
+{
+  "name": "quiz-discipulado-sobrenatural",
+  "version": "1.0.0",
+  "description": "Quiz para o Discipulado da Sobrenatural Church",
+  "scripts": {
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "vercel": "^32.0.0"
+  }
+}

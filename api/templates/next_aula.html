@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Próxima Aula - Quiz Discipulado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-container">
+            <div class="text-center mb-4">
+                <h1 class="display-4">Quiz Discipulado</h1>
+                <h2 class="h4">Sobrenatural Church</h2>
+            </div>
+            
+            <div class="next-aula-content">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Parabéns!</h3>
+                        <p class="card-text">
+                            Você completou as perguntas da Aula {{ next_aula - 1 }}.
+                        </p>
+                        <p class="card-text">
+                            Agora vamos para as perguntas da Aula {{ next_aula }}:
+                            {% if next_aula == 2 %}
+                            <strong>O Poder do Nome e do Sangue de Cristo</strong>
+                            {% elif next_aula == 3 %}
+                            <strong>Agora que eu sou Cristão</strong>
+                            {% elif next_aula == 4 %}
+                            <strong>A Igreja e a Oração</strong>
+                            {% elif next_aula == 5 %}
+                            <strong>Gerar Perdão, Batismo e o Poder do Nome de Jesus</strong>
+                            {% endif %}
+                        </p>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('quiz') }}" class="btn btn-primary btn-lg">Continuar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

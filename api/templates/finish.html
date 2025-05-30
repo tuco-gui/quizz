@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalização - Quiz Discipulado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-container">
+            <div class="text-center mb-4">
+                <h1 class="display-4">Quiz Discipulado</h1>
+                <h2 class="h4">Sobrenatural Church</h2>
+            </div>
+            
+            <div class="finish-content">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">🧠 Parabéns por concluir o quiz!</h3>
+                        <p class="card-text">
+                            Sua pontuação final foi: <strong>{{ total_score }} de {{ total_questions }}</strong>
+                        </p>
+                        
+                        <div class="aula-scores mt-4">
+                            <h4>Pontuação por aula:</h4>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Aula</th>
+                                            <th>Pontuação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for score in scores %}
+                                        <tr>
+                                            <td>Aula {{ score.aula_number }}</td>
+                                            <td>{{ score.correct_answers }} / {{ score.total_questions }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">🏆 Ranking</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nome</th>
+                                        <th>Pontuação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in ranking %}
+                                    <tr {% if item.name == session.name %}class="table-primary"{% endif %}>
+                                        <td>{{ item.rank }}</td>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.total_correct }} / {{ item.total_questions }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('ranking') }}" class="btn btn-primary">Ver Ranking Completo</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <p>Sentiu alguma dúvida durante o quiz? Quer se aprofundar ainda mais na Palavra de Deus!</p>
+                    <p>Procure pelo Ederson e Talitha, lideres do ministério de Discipulado, eles vão te ajudar 😉</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
