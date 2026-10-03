@@ -1,55 +1,24 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "missao-matematica-6ano/index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "missao-matematica-publica/index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "missao-matematica-fotos/index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "missao-matematica-central/index.html",
-      "use": "@vercel/static"
-    }
+    {"src":"api/index.py","use":"@vercel/python"},
+    {"src":"missao-matematica-6ano/index.html","use":"@vercel/static"},
+    {"src":"missao-matematica-publica/index.html","use":"@vercel/static"},
+    {"src":"missao-matematica-fotos/index.html","use":"@vercel/static"},
+    {"src":"missao-matematica-central/index.html","use":"@vercel/static"}
   ],
   "routes": [
-    {
-      "src": "/matematica/?",
-      "dest": "/missao-matematica-central/index.html"
-    },
-    {
-      "src": "/missao-matematica-central/?",
-      "dest": "/missao-matematica-central/index.html"
-    },
-    {
-      "src": "/missao-matematica-fotos/?",
-      "dest": "/missao-matematica-fotos/index.html"
-    },
-    {
-      "src": "/missao-matematica-publica/?",
-      "dest": "/missao-matematica-publica/index.html"
-    },
-    {
-      "src": "/missao-matematica-6ano/?",
-      "dest": "/missao-matematica-6ano/index.html"
-    },
-    {
-      "src": "/missao-matematica-6ano/index.html",
-      "dest": "/missao-matematica-6ano/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
-    }
+    {"src":"^/$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/index.html$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/matematica/?$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/missao-matematica-central/?$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/missao-matematica-central/index.html$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/missao-matematica-fotos/?$","dest":"/missao-matematica-fotos/index.html"},
+    {"src":"^/missao-matematica-fotos/index.html$","dest":"/missao-matematica-fotos/index.html"},
+    {"src":"^/missao-matematica-publica/?$","dest":"/missao-matematica-publica/index.html"},
+    {"src":"^/missao-matematica-publica/index.html$","dest":"/missao-matematica-publica/index.html"},
+    {"src":"^/missao-matematica-6ano/?$","dest":"/missao-matematica-6ano/index.html"},
+    {"src":"^/missao-matematica-6ano/index.html$","dest":"/missao-matematica-6ano/index.html"},
+    {"src":"/(.*)","dest":"api/index.py"}
   ]
 }
