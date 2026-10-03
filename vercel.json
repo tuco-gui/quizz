@@ -16,31 +16,27 @@
     {
       "src": "missao-matematica-fotos/index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "missao-matematica-central/index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/missao-matematica-fotos/index.html"
+      "src": "/matematica/?",
+      "dest": "/missao-matematica-central/index.html"
     },
     {
-      "src": "/matematica/?",
-      "dest": "/missao-matematica-fotos/index.html"
+      "src": "/missao-matematica-central/?",
+      "dest": "/missao-matematica-central/index.html"
     },
     {
       "src": "/missao-matematica-fotos/?",
       "dest": "/missao-matematica-fotos/index.html"
     },
     {
-      "src": "/missao-matematica-fotos/index.html",
-      "dest": "/missao-matematica-fotos/index.html"
-    },
-    {
       "src": "/missao-matematica-publica/?",
-      "dest": "/missao-matematica-publica/index.html"
-    },
-    {
-      "src": "/missao-matematica-publica/index.html",
       "dest": "/missao-matematica-publica/index.html"
     },
     {
