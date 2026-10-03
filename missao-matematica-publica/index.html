@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2E7D32">
+  <title>Missão Matemática • 6º ano</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7faf8}
+    iframe{display:block;width:100%;height:100dvh;border:0;background:#f7faf8}
+  </style>
+</head>
+<body>
+  <iframe id="app" src="/missao-matematica-6ano/index.html" title="Missão Matemática 6º ano"></iframe>
+  <script>
+    const frame=document.getElementById('app');
+    frame.addEventListener('load',()=>{
+      try{
+        const d=frame.contentDocument;
+        const s=d.createElement('style');
+        s.textContent=`
+          .hero-card{isolation:isolate!important}
+          .hero-card>*{position:relative!important;z-index:1!important}
+          .hero-card:after{z-index:0!important;pointer-events:none!important;opacity:.35!important}
+          @media (max-width:780px){
+            .hero-card:after{width:150px!important;height:150px!important;right:-40px!important;top:-40px!important;opacity:.16!important}
+            .hero h2{max-width:86%!important}
+          }
+        `;
+        d.head.appendChild(s);
+      }catch(e){}
+    });
+  </script>
+</body>
+</html>
