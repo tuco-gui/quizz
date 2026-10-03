@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2E7D32">
+<title>Missão Matemática • 6º ano</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7faf8}#shell{display:block;width:100%;height:100dvh;border:0}</style>
+</head>
+<body>
+<iframe id="shell" src="/missao-matematica-publica/index.html" title="Missão Matemática 6º ano"></iframe>
+<script>
+const shell=document.getElementById('shell');
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('missao-matematica-files-v1',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('photos'))r.result.createObjectStore('photos',{keyPath:'key'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function getPhoto(key){const db=await openDB();return new Promise((res,rej)=>{const r=db.transaction('photos','readonly').objectStore('photos').get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error)})}
+async function putPhoto(obj){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(obj);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function delPhoto(key){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(key);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+function profile(){try{return JSON.parse(localStorage.getItem('missao-matematica-student-v1')||'null')}catch(e){return null}}
+function attach(){
+ const wrapper=shell.contentDocument;if(!wrapper)return;
+ const appFrame=wrapper.getElementById('app');if(!appFrame)return;
+ const install=()=>{
+  const w=appFrame.contentWindow,d=appFrame.contentDocument;if(!d||!d.body)return;
+  if(!d.getElementById('photoCssV5')){
+   const s=d.createElement('style');s.id='photoCssV5';s.textContent=`
+   .block-photo-v5{margin-top:16px}.drop-v5{border:2px dashed #64b5f6;border-radius:18px;padding:20px;background:#f7fbff;text-align:center;cursor:pointer;transition:.18s;outline:none}.drop-v5:hover,.drop-v5.drag{border-color:#1565c0;background:#e3f2fd}.drop-v5 .ico{font-size:30px;line-height:1;margin-bottom:8px}.drop-v5 strong{display:block;color:#0f3d6e;font-size:15px}.drop-v5 small{display:block;color:#64748b;margin-top:6px}.preview-v5{display:none;margin-top:12px;border:1px solid #dbe4ee;border-radius:16px;padding:10px;background:#fff}.preview-v5.show{display:block}.preview-v5 img{display:block;max-width:100%;max-height:420px;margin:0 auto;border-radius:12px;object-fit:contain;background:#f8fafc}.meta-v5{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:9px;font-size:12px;color:#64748b}.actions-v5{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.actions-v5 button{border:0;border-radius:11px;padding:8px 11px;font-weight:800;cursor:pointer}.replace-v5{background:#eef7f0;color:#2E7D32}.remove-v5{background:#fff0f0;color:#b91c1c}.note-v5{font-size:12px;color:#64748b;margin-top:8px}@media(max-width:780px){.meta-v5{display:block}}`;
+   d.head.appendChild(s)
+  }
+  async function add(){
+   let st=null,lessons=[];try{st=w.eval('state');lessons=w.eval('lessons')}catch(e){return}
+   if(!st||st.current>=lessons.length)return;
+   const stop=d.querySelector('.lesson.active .photo-stop');if(!stop||stop.querySelector('.block-photo-v5'))return;
+   const block=st.current+1,key='block-'+block,p=profile();
+   const wrap=d.createElement('div');wrap.className='block-photo-v5';
+   wrap.innerHTML=`<div class="drop-v5" tabindex="0" role="button"><div class="ico">📷</div><strong>Anexar 1 foto com todas as respostas deste bloco</strong><small>Clique para escolher uma imagem ou arraste e solte aqui.</small><input type="file" accept="image/*" hidden></div><div class="preview-v5"><img alt="Foto das respostas do bloco ${block}"><div class="meta-v5"><span class="name-v5"></span><span class="date-v5"></span></div><div class="actions-v5"><button class="replace-v5" type="button">Trocar foto</button><button class="remove-v5" type="button">Remover foto</button></div></div><div class="note-v5">Uma única imagem por bloco. Ela fica vinculada a ${p?.name||'esta estudante'} e salva neste aparelho.</div>`;
+   stop.appendChild(wrap);
+   const drop=wrap.querySelector('.drop-v5'),input=wrap.querySelector('input'),preview=wrap.querySelector('.preview-v5'),img=wrap.querySelector('img'),name=wrap.querySelector('.name-v5'),date=wrap.querySelector('.date-v5');let url=null;
+   async function refresh(){const item=await getPhoto(key);if(url){URL.revokeObjectURL(url);url=null}if(item?.blob){url=URL.createObjectURL(item.blob);img.src=url;name.textContent=item.name||'Foto do bloco';date.textContent=new Date(item.updatedAt).toLocaleString('pt-BR');preview.classList.add('show');drop.style.display='none'}else{img.removeAttribute('src');preview.classList.remove('show');drop.style.display='block'}}
+   async function save(file){if(!file||!file.type.startsWith('image/')){w.alert('Selecione uma imagem.');return}if(file.size>20*1024*1024){w.alert('A imagem é muito grande. Use uma foto com até 20 MB.');return}try{await putPhoto({key,block,blob:file,name:file.name||('bloco-'+block+'.jpg'),type:file.type,size:file.size,student:p?.name||'',date:p?.dateISO||'',updatedAt:new Date().toISOString()});await refresh()}catch(e){w.alert('Não foi possível salvar a foto. Tente outra imagem.')}}
+   drop.onclick=()=>input.click();drop.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click()}};
+   input.onchange=()=>{if(input.files?.[0])save(input.files[0]);input.value=''};
+   ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.add('drag')}));
+   ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove('drag')}));
+   drop.addEventListener('drop',e=>{const fs=[...(e.dataTransfer?.files||[])];if(fs.length>1)w.alert('Use apenas uma imagem por bloco. Vou considerar a primeira.');if(fs[0])save(fs[0])});
+   wrap.querySelector('.replace-v5').onclick=()=>input.click();
+   wrap.querySelector('.remove-v5').onclick=async()=>{if(w.confirm('Remover a foto deste bloco?')){await delPhoto(key);await refresh()}};
+   await refresh()
+  }
+  let lock=false;const patch=()=>{if(lock)return;lock=true;setTimeout(async()=>{try{await add()}finally{lock=false}},40)};
+  new MutationObserver(patch).observe(d.body,{childList:true,subtree:true});patch()
+ };
+ if(appFrame.contentDocument?.readyState==='complete')install();else appFrame.addEventListener('load',install,{once:true})
+}
+shell.addEventListener('load',attach);
+</script>
+</body>
+</html>
