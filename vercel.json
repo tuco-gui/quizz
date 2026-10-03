@@ -8,9 +8,21 @@
     {
       "src": "missao-matematica-6ano/index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "missao-matematica-publica/index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/matematica/?",
+      "dest": "/missao-matematica-publica/index.html"
+    },
+    {
+      "src": "/missao-matematica-publica/?",
+      "dest": "/missao-matematica-publica/index.html"
+    },
     {
       "src": "/missao-matematica-6ano/?",
       "dest": "/missao-matematica-6ano/index.html"
