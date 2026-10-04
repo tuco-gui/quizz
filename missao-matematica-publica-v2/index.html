@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2E7D32">
+<title>Missão Matemática • 6º ano</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7faf8;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{display:block;width:100%;height:100dvh;border:0;background:#f7faf8}
+#studentGate{position:fixed;inset:0;z-index:9999;display:none;place-items:center;padding:20px;background:rgba(15,23,42,.52);backdrop-filter:blur(8px)}
+#studentGate.show{display:grid}.studentBox{width:min(440px,100%);background:#fff;border-radius:26px;padding:24px;box-shadow:0 24px 70px rgba(15,23,42,.25);color:#1f2937}.studentLogo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#2E7D32,#66bb6a);color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;margin-bottom:16px}.studentBox h1{font-size:27px;line-height:1.08;margin:0 0 8px}.studentBox p{color:#64748b;line-height:1.5;margin:0 0 18px}.studentLabel{display:block;font-size:13px;font-weight:800;margin:12px 0 6px}.studentInput,.studentDate{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #cbd5e1;border-radius:14px;font:inherit;background:#fff}.studentDate{background:#f8fafc;color:#475569}.studentBtn{width:100%;border:0;border-radius:14px;padding:13px 16px;background:#2E7D32;color:#fff;font-weight:900;font-size:16px;margin-top:18px;cursor:pointer}.studentHint{font-size:12px;color:#64748b;margin-top:9px;text-align:center}
+</style>
+</head>
+<body>
+<div id="studentGate"><div class="studentBox"><div class="studentLogo">6º</div><h1>Antes de começar</h1><p>Digite seu nome. Assim o aplicativo identifica de quem são o progresso e as respostas.</p><label class="studentLabel" for="studentName">Nome da estudante</label><input id="studentName" class="studentInput" maxlength="80" autocomplete="name" placeholder="Digite seu nome"><label class="studentLabel">Data de hoje</label><div id="studentDate" class="studentDate"></div><button id="studentStart" class="studentBtn">Entrar na Missão Matemática</button><div class="studentHint">A data é preenchida automaticamente pelo aparelho.</div></div></div>
+<iframe id="app" src="/missao-matematica-6ano/index.html" title="Missão Matemática 6º ano"></iframe>
+<script>
+const PROFILE_KEY='missao-matematica-student-v1';
+const STUDY_KEY='missao-matematica-study-answers-v1';
+const EXAM_KEY='missao-matematica-exam-v1';
+const EXAM_STATUS_KEY='missao-matematica-exam-status';
+const today=new Date();
+const todayISO=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+const todayLabel=today.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const gate=document.getElementById('studentGate'),nameInput=document.getElementById('studentName'),frame=document.getElementById('app');
+document.getElementById('studentDate').textContent=todayLabel;
+let profile=null;try{profile=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){}
+if(!profile||!profile.name){gate.classList.add('show');setTimeout(()=>nameInput.focus(),100)}
+function currentProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){return null}}
+function saveProfile(){const name=nameInput.value.trim();if(name.length<2){nameInput.focus();return}const old=currentProfile()||{};profile={name,dateISO:old.dateISO||todayISO,dateLabel:old.dateLabel||todayLabel,firstSeenAt:old.firstSeenAt||new Date().toISOString(),lastSeenAt:new Date().toISOString()};localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));gate.classList.remove('show');decorateStudent()}
+document.getElementById('studentStart').onclick=saveProfile;nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')saveProfile()});
+function stamp(meta){const p=currentProfile();return Object.assign({},meta,{student:p?.name||'',date:p?.dateISO||todayISO,dateLabel:p?.dateLabel||todayLabel,updatedAt:new Date().toISOString()})}
+function esc(s){return String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+const EXAM=[
+['Fração','Fácil',0.30,'Na fração 5/8, qual é o numerador e qual é o denominador?'],
+['Fração','Fácil',0.30,'Uma barra foi dividida em 6 partes iguais e 4 foram usadas. Que fração representa a parte usada?'],
+['Fração','Fácil',0.30,'Calcule 3/7 + 2/7 e simplifique, se possível.'],
+['Fração','Fácil',0.30,'Calcule 7/10 - 3/10.'],
+['Fração','Média',0.50,'Complete a fração equivalente: 2/3 = __/12. Mostre como encontrou o número.'],
+['Fração','Média',0.50,'Calcule 1/2 + 1/4. Mostre a transformação para denominadores iguais.'],
+['Fração','Média',0.50,'Calcule 5/6 - 1/3 e apresente a resposta na forma mais simples possível.'],
+['Fração','Média',0.50,'Calcule 3/5 × 10/9 e simplifique o resultado.'],
+['Fração','Difícil',0.90,'Uma garrafa tem 2 L de água. Cada copo comporta 1/4 L. Quantos copos completos podem ser servidos? Escreva DADOS, PERGUNTA, OPERAÇÃO e faça a conta.'],
+['Fração','Difícil',0.90,'Uma pessoa percorreu 2/5 de uma trilha pela manhã e 1/3 à tarde. a) Que fração percorreu ao todo? b) Que fração ainda falta? Mostre o raciocínio.'],
+['Decimal','Fácil',0.30,'Escreva a fração decimal 7/10 na forma de número decimal.'],
+['Decimal','Fácil',0.30,'Escreva 0,35 como uma fração decimal.'],
+['Decimal','Fácil',0.30,'Complete com >, < ou = : 3,5 __ 3,50.'],
+['Decimal','Fácil',0.30,'Calcule 2,58 + 3,20.'],
+['Decimal','Média',0.50,'Calcule 10,01 - 9,70. Organize corretamente os números antes de subtrair.'],
+['Decimal','Média',0.50,'Coloque em ordem crescente: 1,9 ; 1,09 ; 1,99 ; 1,909.'],
+['Decimal','Média',0.50,'Calcule 2,5 × 3,2 e mostre como determinou a posição da vírgula.'],
+['Decimal','Média',0.50,'Calcule 84,6 ÷ 3.'],
+['Decimal','Difícil',0.90,'Uma garrafa contém 3,25 L de refrigerante. Cada copo comporta 0,25 L. Quantos copos completos podem ser servidos? Escreva DADOS, PERGUNTA, OPERAÇÃO e faça a divisão.'],
+['Decimal','Difícil',0.90,'1 kg de carne custa R$ 32,90. Uma pessoa comprou 2,7 kg. a) Qual foi o valor da compra? b) Se pagou com R$ 100,00, qual foi o troco? Mostre todas as operações.']
+];
+function decorateStudent(){const d=frame.contentDocument,p=currentProfile();if(!d||!p)return;let chip=d.getElementById('studentChipV4');if(!chip){chip=d.createElement('button');chip.id='studentChipV4';chip.type='button';chip.title='Estudante desta sessão';chip.onclick=()=>{if(confirm('Deseja trocar o nome da estudante? O progresso atual continuará salvo neste aparelho.')){nameInput.value=p.name;gate.classList.add('show');nameInput.focus()}};const host=d.querySelector('.topbar-inner');if(host)host.appendChild(chip)}if(chip)chip.innerHTML='<strong>'+esc(p.name)+'</strong><span>'+esc(p.dateLabel)+'</span>'}
+frame.addEventListener('load',()=>{
+ const w=frame.contentWindow,d=frame.contentDocument;if(!d||!d.body)return;
+ const css=d.createElement('style');css.id='publicV4Css';css.textContent=`
+ .hero-card{isolation:isolate!important}.hero-card>*{position:relative!important;z-index:1!important}.hero-card:after{z-index:0!important;pointer-events:none!important;opacity:.28!important}
+ .frac-v4{display:inline-grid;grid-template-rows:auto auto;vertical-align:middle;text-align:center;line-height:1;margin:0 .14em;min-width:1.25em}.frac-v4 .n{border-bottom:1.7px solid currentColor;padding:0 .14em .10em}.frac-v4 .d{padding:.10em .14em 0}
+ .resp-v4{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #cbd5e1;border-radius:13px;padding:11px 12px;margin-top:10px;resize:vertical;font:inherit;background:#fff;color:#1f2937}.resp-v4:focus{outline:3px solid rgba(46,125,50,.15);border-color:#66bb6a}.save-v4{font-size:12px;color:#64748b;margin-top:5px}
+ .exam-nav-v4{border-top:1px solid #e5e7eb!important;margin-top:7px!important;padding-top:12px!important}.exam-card-v4{background:#fff;border:1px solid #e5e7eb;border-radius:24px;box-shadow:0 10px 28px rgba(16,24,40,.09);padding:22px;margin-bottom:16px}.exam-hero-v4{background:linear-gradient(145deg,#0f5132,#2e7d32);color:#fff;border:none}.exam-hero-v4 p{color:#e8f5e9}.weight-v4{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;background:#eef2f7;color:#475569;white-space:nowrap}.q-v4{border:1px solid #e2e8f0;border-radius:18px;padding:16px;margin:10px 0;background:#fcfdfc}.qtop-v4{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.qnum-v4{font-size:12px;font-weight:900;color:#2E7D32;letter-spacing:.06em;text-transform:uppercase}.sum-v4{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.sum-v4>div{padding:10px;border-radius:14px;background:rgba(255,255,255,.10);text-align:center}.sum-v4 strong{font-size:20px;display:block}.exam-status-v4{padding:12px 14px;border-radius:14px;background:#e8f5e9;border:1px solid #c8e6c9;margin:12px 0;color:#225b25;font-weight:800}
+ #studentChipV4{margin-left:auto;border:1px solid #d7ead9;background:#f1f8f2;color:#1f2937;border-radius:13px;padding:7px 10px;text-align:left;line-height:1.1;min-width:105px}#studentChipV4 strong{display:block;font-size:12px;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#studentChipV4 span{display:block;font-size:10px;color:#64748b;margin-top:3px}
+ @media(max-width:780px){.hero-card:after{width:150px!important;height:150px!important;right:-40px!important;top:-40px!important;opacity:.14!important}.hero h2{max-width:86%!important}.qtop-v4{display:block}.weight-v4{margin-top:6px}.sum-v4{grid-template-columns:1fr}#studentChipV4{min-width:auto;padding:6px 8px}#studentChipV4 strong{max-width:90px}}
+ `;d.head.appendChild(css);
+ const getState=()=>{try{return w.eval('state')}catch(e){return null}};
+ const getLessons=()=>{try{return w.eval('lessons')}catch(e){return []}};
+ function fracify(root){const walker=d.createTreeWalker(root||d.body,NodeFilter.SHOW_TEXT,{acceptNode(n){const p=n.parentElement;if(!p||['SCRIPT','STYLE','TEXTAREA','INPUT'].includes(p.tagName)||p.closest('.frac-v4'))return NodeFilter.FILTER_REJECT;return /\d+\s*\/\s*\d+/.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}});const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);nodes.forEach(n=>{const f=d.createDocumentFragment();n.nodeValue.split(/(\d+\s*\/\s*\d+)/g).forEach(x=>{const m=x.match(/^(\d+)\s*\/\s*(\d+)$/);if(m){const s=d.createElement('span');s.className='frac-v4';s.setAttribute('aria-label',m[1]+' sobre '+m[2]);s.innerHTML='<span class="n">'+m[1]+'</span><span class="d">'+m[2]+'</span>';f.appendChild(s)}else f.appendChild(d.createTextNode(x))});n.replaceWith(f)})}
+ function addStudyInputs(){const st=getState(),less=getLessons();if(!st||st.current>=less.length)return;let saved={};try{saved=JSON.parse(localStorage.getItem(STUDY_KEY)||'{}')}catch(e){}d.querySelectorAll('.lesson.active .exercise').forEach((ex,j)=>{if(ex.querySelector('.resp-v4'))return;const key='b'+(st.current+1)+'q'+(j+1),old=saved[key],ta=d.createElement('textarea');ta.className='resp-v4';ta.placeholder='Resposta final (opcional)';ta.value=typeof old==='object'?(old.answer||''):(old||'');ta.addEventListener('input',()=>{let x={};try{x=JSON.parse(localStorage.getItem(STUDY_KEY)||'{}')}catch(e){}x[key]=stamp({answer:ta.value,block:st.current+1,question:j+1});localStorage.setItem(STUDY_KEY,JSON.stringify(x))});const note=d.createElement('div');note.className='save-v4';note.textContent='Salvo automaticamente para '+(currentProfile()?.name||'esta estudante')+'.';ex.append(ta,note)})}
+ function addExamNav(){const nav=d.getElementById('navList');if(!nav||nav.querySelector('.exam-nav-v4'))return;const st=getState(),less=getLessons(),ok=st&&st.done&&st.done.length===less.length,b=d.createElement('button');b.className='nav-item exam-nav-v4';b.innerHTML='<span class="dot">'+(ok?'★':'🔒')+'</span><span class="nav-text">Avaliação Final</span>';b.onclick=showExam;nav.appendChild(b)}
+ function renderExam(){const st=getState(),less=getLessons(),main=d.getElementById('main');if(!main)return;main.dataset.examV4='1';const ok=st&&st.done&&st.done.length===less.length;if(!ok){main.innerHTML='<div id="examRootV4" class="exam-card-v4"><span class="section-kicker">Avaliação Final</span><h2>A avaliação ainda está bloqueada</h2><p>Conclua os 11 blocos de estudo primeiro. A prova ficará disponível no final da trilha.</p><div class="footer-nav"><button class="btn btn-primary" id="backStudyV4">Voltar aos estudos</button></div></div>';d.getElementById('backStudyV4').onclick=()=>{w.go(Math.min((st?.done?.length||0),less.length-1))};return}
+ let ans={};try{ans=JSON.parse(localStorage.getItem(EXAM_KEY)||'{}')}catch(e){}
+ const qs=EXAM.map((q,i)=>{const old=typeof ans[i]==='object'?ans[i]?.answer:ans[i];return `<div class="q-v4"><div class="qtop-v4"><div><div class="qnum-v4">${q[0]} • Questão ${i+1}</div><p>${q[3]}</p></div><span class="weight-v4">${q[1]} • ${q[2].toFixed(2).replace('.',',')} pt</span></div><textarea class="resp-v4 exam-resp-v4" data-i="${i}" placeholder="Digite a resposta final. As contas ficam no caderno.">${esc(old||'')}</textarea><div class="save-v4">Salvo automaticamente para ${esc(currentProfile()?.name||'a estudante')}.</div></div>`}).join('');
+ const status=localStorage.getItem(EXAM_STATUS_KEY)?'<div class="exam-status-v4">Esta avaliação já foi marcada como finalizada neste aparelho. Você ainda pode revisar as respostas antes de enviar as fotos das contas.</div>':'';
+ main.innerHTML=`<div id="examRootV4"><div class="exam-card-v4 exam-hero-v4"><span class="section-kicker" style="background:rgba(255,255,255,.14);color:#fff">Avaliação Final</span><h2>Simulado de Recuperação</h2><p><strong>${esc(currentProfile()?.name||'')}</strong> • ${esc(currentProfile()?.dateLabel||todayLabel)}</p><p>20 questões: 10 de frações e 10 de números decimais. Nota total: 10,0 pontos.</p><div class="sum-v4"><div><strong>8</strong>fáceis<br>0,30 cada</div><div><strong>8</strong>médias<br>0,50 cada</div><div><strong>4</strong>difíceis<br>0,90 cada</div></div></div><div class="exam-card-v4">${status}<div class="callout orange"><strong>REGRAS</strong>Faça as contas no caderno. Nas questões com texto, escreva DADOS, PERGUNTA e OPERAÇÃO. O aplicativo não mostra o gabarito.</div>${qs}<div class="photo-stop"><h3>FINALIZAR AVALIAÇÃO</h3><p>Confira as 20 respostas. Depois tire fotos das contas no caderno para correção.</p><button class="btn btn-orange" id="finishExamV4">Finalizar avaliação</button></div></div></div>`;
+ d.querySelectorAll('.exam-resp-v4').forEach(ta=>ta.addEventListener('input',()=>{let x={};try{x=JSON.parse(localStorage.getItem(EXAM_KEY)||'{}')}catch(e){}const i=Number(ta.dataset.i);x[i]=stamp({answer:ta.value,question:i+1,area:EXAM[i][0],difficulty:EXAM[i][1],weight:EXAM[i][2]});localStorage.setItem(EXAM_KEY,JSON.stringify(x))}));
+ d.getElementById('finishExamV4').onclick=()=>{let x={};try{x=JSON.parse(localStorage.getItem(EXAM_KEY)||'{}')}catch(e){}const n=Object.values(x).filter(v=>String(typeof v==='object'?v.answer:v||'').trim()).length;if(n<20){w.alert('Você respondeu '+n+' de 20 questões. Complete as que faltam antes de finalizar.');return}localStorage.setItem(EXAM_STATUS_KEY,JSON.stringify(stamp({status:'finalizada'})));w.alert('Avaliação finalizada. Agora envie as fotos das contas no caderno para correção.')};
+ fracify(main);
+ }
+ function showExam(){const st=getState(),less=getLessons();if(st){st.current=less.length;localStorage.setItem('missao-matematica-state',JSON.stringify(st))}renderExam();w.scrollTo({top:0,behavior:'smooth'})}
+ let busy=false;
+ function patch(){if(busy)return;busy=true;setTimeout(()=>{try{decorateStudent();const st=getState(),less=getLessons(),main=d.getElementById('main');if(st&&st.current===less.length){if(main&&!main.querySelector('#examRootV4'))renderExam()}else{if(main)delete main.dataset.examV4;fracify(d.body);addStudyInputs()}addExamNav()}finally{busy=false}},40)}
+ const obs=new MutationObserver(patch);obs.observe(d.body,{childList:true,subtree:true});decorateStudent();patch();
+});
+</script>
+</body>
+</html>
