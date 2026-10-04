@@ -1,0 +1,1 @@
+Redeploy do Professor de Matemática após configuração segura das variáveis de ambiente na Vercel.
