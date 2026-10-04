@@ -5,12 +5,15 @@
     {"src":"missao-matematica-6ano/index.html","use":"@vercel/static"},
     {"src":"missao-matematica-publica/index.html","use":"@vercel/static"},
     {"src":"missao-matematica-fotos/index.html","use":"@vercel/static"},
-    {"src":"missao-matematica-central/index.html","use":"@vercel/static"}
+    {"src":"missao-matematica-central/index.html","use":"@vercel/static"},
+    {"src":"missao-matematica-central-v2/index.html","use":"@vercel/static"}
   ],
   "routes": [
-    {"src":"^/$","dest":"/missao-matematica-central/index.html"},
-    {"src":"^/index.html$","dest":"/missao-matematica-central/index.html"},
-    {"src":"^/matematica/?$","dest":"/missao-matematica-central/index.html"},
+    {"src":"^/$","dest":"/missao-matematica-central-v2/index.html"},
+    {"src":"^/index.html$","dest":"/missao-matematica-central-v2/index.html"},
+    {"src":"^/matematica/?$","dest":"/missao-matematica-central-v2/index.html"},
+    {"src":"^/missao-matematica-central-v2/?$","dest":"/missao-matematica-central-v2/index.html"},
+    {"src":"^/missao-matematica-central-v2/index.html$","dest":"/missao-matematica-central-v2/index.html"},
     {"src":"^/missao-matematica-central/?$","dest":"/missao-matematica-central/index.html"},
     {"src":"^/missao-matematica-central/index.html$","dest":"/missao-matematica-central/index.html"},
     {"src":"^/missao-matematica-fotos/?$","dest":"/missao-matematica-fotos/index.html"},
