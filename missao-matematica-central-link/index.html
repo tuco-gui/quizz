@@ -1,0 +1,5 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Central de Estudos</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7faf8}#shell{display:block;width:100%;height:100dvh;border:0}</style></head><body><iframe id="shell" src="/missao-matematica-central-v2/index.html" title="Central de Estudos"></iframe><script>
+const shell=document.getElementById('shell');const topic=new URLSearchParams(location.search).get('topic')||'fracoes';
+function openTopic(){try{const v2=shell.contentDocument;if(!v2)return false;const inner=v2.getElementById('app');if(!inner)return false;const w=inner.contentWindow;if(typeof w.showTopic!=='function')return false;w.showTopic(topic);return true}catch(e){return false}}
+shell.addEventListener('load',()=>{let n=0;const t=setInterval(()=>{if(openTopic()||++n>30)clearInterval(t)},200)});
+</script></body></html>
