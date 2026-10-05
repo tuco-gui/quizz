@@ -1,0 +1,36 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Missão Matemática</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7faf8}#root{width:100%;height:100dvh;border:0;display:block}</style></head><body><iframe id="root" src="/missao-matematica-hub-v3/index.html" title="Missão Matemática"></iframe><script>
+const root=document.getElementById('root');
+const GRADE_KEY='missao-matematica-grades-v1';
+const STUDY_KEY='missao-matematica-study-answers-v1';
+const PROFILE_KEY='missao-matematica-student-v1';
+const AUTO_KEY='missao-matematica-auto-corrected-v4';
+function profile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){return null}}
+function grades(){try{return JSON.parse(localStorage.getItem(GRADE_KEY)||'{"blocks":{}}')}catch(e){return {blocks:{}}}}
+function saveGrades(g){g.updatedAt=new Date().toISOString();localStorage.setItem(GRADE_KEY,JSON.stringify(g))}
+function answered(){try{return JSON.parse(localStorage.getItem(STUDY_KEY)||'{}')}catch(e){return {}}}
+function autoState(){try{return JSON.parse(localStorage.getItem(AUTO_KEY)||'{}')}catch(e){return {}}}
+function saveAuto(x){localStorage.setItem(AUTO_KEY,JSON.stringify(x))}
+function walkFrames(win,arr=[]){try{arr.push(win);for(let i=0;i<win.frames.length;i++)walkFrames(win.frames[i],arr)}catch(e){}return arr}
+function findApp(){const wins=walkFrames(root.contentWindow,[]);for(let i=wins.length-1;i>=0;i--){try{const w=wins[i],d=w.document;if(d?.querySelector('.lesson.active')&&d.getElementById('navList'))return{w,d}}catch(e){}}return null}
+function lessonData(w,n){try{const ls=w.eval('lessons');return ls?.[n-1]||{}}catch(e){return {}}}
+async function callBlock(payload){const r=await fetch('/api/correct-block',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||data.message||('Erro '+r.status));return data}
+function statusBox(doc,block){let x=doc.querySelector('.lesson.active .auto-correct-v4');if(!x){const stop=doc.querySelector('.lesson.active .photo-stop')||doc.querySelector('.lesson.active .footer-nav')||doc.querySelector('.lesson.active');if(!stop)return null;x=doc.createElement('div');x.className='auto-correct-v4';x.style.cssText='margin-top:14px;padding:12px 14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;font-size:14px;line-height:1.45';stop.prepend(x)}x.dataset.block=block;return x}
+function removeBlockPhotos(doc){doc.querySelectorAll('.lesson.active .hub-photo').forEach(x=>x.remove());const stop=doc.querySelector('.lesson.active .photo-stop');if(stop){const txt=stop.textContent||'';if(/foto|imagem|anex/i.test(txt)){[...stop.children].forEach(ch=>{if(ch.classList?.contains('auto-correct-v4'))return;if(/foto|imagem|anex|salvar/i.test(ch.textContent||''))ch.style.display='none'})}}}
+async function correctBlockIfNeeded(env){const {w,d}=env;let st;try{st=w.eval('state')}catch(e){return}let lessons;try{lessons=w.eval('lessons')}catch(e){return}if(!st||!Array.isArray(st.done)||!lessons)return;removeBlockPhotos(d);const current=Number(st.current)+1;if(current>=1&&current<=lessons.length){const g=grades(),box=statusBox(d,current);if(Number.isFinite(Number(g?.blocks?.[String(current)]))){if(box){box.style.background='#e8f5e9';box.style.color='#225b25';box.textContent='Bloco corrigido automaticamente • Nota '+Number(g.blocks[String(current)]).toFixed(1).replace('.',',')+'/10';}return}}
+ const state=autoState();
+ for(let block=1;block<=lessons.length;block++){
+   const done=st.done.includes(block-1)||st.done.includes(block)||Number(st.current)>block-1;
+   const g=grades();if(!done||Number.isFinite(Number(g?.blocks?.[String(block)]))||state[String(block)]==='running')continue;
+   const all=answered(),ans=Object.fromEntries(Object.entries(all).filter(([k])=>k.startsWith('b'+block+'q')));
+   if(!Object.keys(ans).length)continue;
+   state[String(block)]='running';saveAuto(state);
+   const box=block===current?statusBox(d,block):null;if(box){box.style.background='#fff8e1';box.style.color='#7c4a03';box.textContent='Professor corrigindo este bloco automaticamente…'}
+   try{const data=await callBlock({block,student:profile()?.name||'',answers:ans,lesson:lessonData(w,block)});const score=Number(data.score??data.nota);if(Number.isFinite(score)){const ng=grades();ng.blocks=ng.blocks||{};ng.blocks[String(block)]=score;ng.blockFeedback=ng.blockFeedback||{};ng.blockFeedback[String(block)]={feedback:data.feedback||'',strengths:data.strengths||[],needs_review:data.needs_review||[],per_question:data.per_question||[],savedAt:new Date().toISOString()};saveGrades(ng);state[String(block)]='done';saveAuto(state);if(box){box.style.background='#e8f5e9';box.style.color='#225b25';box.textContent='Correção automática concluída • Nota '+score.toFixed(1).replace('.',',')+'/10'+(data.feedback?' • '+data.feedback:'')}}else{state[String(block)]='retry';saveAuto(state);if(box)box.textContent='Não consegui fechar a nota agora. O Professor tentará novamente.'}}
+   catch(e){state[String(block)]='retry';saveAuto(state);if(box){box.style.background='#fff8e1';box.style.color='#7c4a03';box.textContent='Correção automática será tentada novamente.'}}
+   break;
+ }
+}
+function simplifyExam(){const env=findApp();if(!env)return;const d=env.d,hub=d.querySelector('.exam-photo-hub');if(!hub)return;const correct=hub.querySelector('.hub-correct'),save=hub.querySelector('.hub-save');if(correct){correct.style.display='none'}if(save&&!save.dataset.autoV4){save.dataset.autoV4='1';save.textContent='Salvar fotos e corrigir avaliação';save.addEventListener('click',()=>{setTimeout(()=>{const c=hub.querySelector('.hub-correct');if(c&&!c.disabled)c.click()},700)})}}
+function install(){const env=findApp();if(!env)return;removeBlockPhotos(env.d);correctBlockIfNeeded(env);simplifyExam()}
+setInterval(install,800);root.addEventListener('load',()=>setTimeout(install,600));
+</script></body></html>
